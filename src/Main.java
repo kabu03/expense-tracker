@@ -29,7 +29,7 @@ public class Main {
         UIManager.put("info", new Color(0, 21, 41)); // Info background
         UIManager.put("nimbusBase", new Color(3, 18, 33)); // Primary color for the nimbus look and feel
         UIManager.put("nimbusLightBackground", new Color(4, 24, 44)); // Light background color
-        UIManager.put("nimbusSelectionBackground", new Color(0, 10, 20)); // Background color when an item is selected
+        UIManager.put("nimbusSelectionBackground", new Color(255, 255, 255)); // Background color when an item is selected
         UIManager.put("Table.background", new Color(4, 24, 44)); // Background color for tables
         UIManager.put("Table.gridColor", new Color(0, 10, 20)); // Grid color for tables
         UIManager.put("TableHeader.background", new Color(0, 21, 41)); // Background color for table headers
