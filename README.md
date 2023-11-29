@@ -1,7 +1,8 @@
 # expense-tracker
 An Expense Tracker made in Java, using Swing-based GUI.
+<img width="960" alt="ExpenseTrackerGUI" src="https://github.com/kabu03/expense-tracker/assets/118374503/2bcc529e-c70e-4f83-9473-4cb1152bdfa6">
 
-## Project Description
+## Description
 Welcome to Expense Tracker, a simple and efficient tool for managing your personal or business expenses. This Java-based application provides a user-friendly interface for tracking and organizing your expenses.
 ## Setup and Installation
 To get started with Expense Tracker:
@@ -12,16 +13,15 @@ Use the following command to clone the repo:
 
 ### 2) Open and Run the Project:
 
+
 Open the project in your preferred Java IDE.
 Run the application from the main class.
-### 3) Create Your Expense File:
-Before using Expense Tracker, you need to create your own expense file.
-Make a new file named `expenses.ser` in the project's root directory.
+### 3) Rename the Expense File:
+Before using the expense tracker, rename the `expenses_sample.ser` file to `expenses.ser` in the project's root directory.
 This file will be used to store your expense data using Java serialization.
 #### Custom File Name (Optional):
 If you prefer a different file name, create the file with your chosen name.
-Then, open `ExpenseFileHandler.java`.
-Change the file name in the code to match your new file name.
+Then, open `ExpenseFileHandler.java`, and change the file name in the code to match your new file name.
 
 ## Contributing
 Your contributions are welcome! If you have suggestions or improvements, feel free to fork the repo and submit a pull request.
