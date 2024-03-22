@@ -23,7 +23,7 @@ public class ExpenseManagerGUI extends JFrame {
     }
 
     private void initializeGUI() {
-        setTitle("Expense Manager");
+        setTitle("Expense Tracker");
         setSize(800, 600);
         setExtendedState(JFrame.MAXIMIZED_BOTH); // Cleaner when it opens maximized.
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

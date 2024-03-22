@@ -30,5 +30,9 @@ bin/
 .idea/
 *.iml
 *.iws
+
 expenses.ser
 launch4jconfigfile.xml
+ExpenseTrackerGUI.png
+Expense Tracker Documentation.docx
+
