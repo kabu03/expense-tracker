@@ -1,9 +1,12 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ExpenseManagerGUI extends JFrame {
@@ -14,6 +17,7 @@ public class ExpenseManagerGUI extends JFrame {
     private JPanel totalsPanel; // This panel will store the totals for every category.
     private JComboBox<YearMonth> monthComboBox; // This combo box will let the user choose a month to filter expenses.
     private final String[] CATEGORIES = {"Food", "Rent", "Groceries", "Utilities", "Transportation", "Entertainment", "Other"};
+    private final String[] CURRENCIES = {"HUF", "EUR", "JOD", "USD"};
 
     public ExpenseManagerGUI(ExpenseManager expenseManager, ExpenseFileHandler fileHandler) {
         this.expenseManager = expenseManager;
@@ -77,22 +81,64 @@ public class ExpenseManagerGUI extends JFrame {
     }
 
     private JPanel getOperationButtonPanel() {
-        JButton addExpenseButton = new JButton("Add New Expense");
+        JButton addExpenseButton = new JButton("Add New Expense | A");
         Dimension buttonSize = new Dimension(400, 45);
         addExpenseButton.setPreferredSize(buttonSize);
         addExpenseButton.setMaximumSize(buttonSize);
         addExpenseButton.setMinimumSize(buttonSize);
         addExpenseButton.addActionListener(e -> showAddExpenseDialog());
-        JButton editExpenseButton = new JButton("Edit Expense");
+        addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('A'), "AddNewExpense");
+        addExpenseButton.getActionMap().put("AddNewExpense", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAddExpenseDialog();
+            }
+        });
+        addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('a'), "AddNewExpense");
+        addExpenseButton.getActionMap().put("AddNewExpense", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAddExpenseDialog();
+            }
+        });
+        JButton editExpenseButton = new JButton("Edit Expense | E");
         editExpenseButton.setPreferredSize(buttonSize);
         editExpenseButton.setMaximumSize(buttonSize);
         editExpenseButton.setMinimumSize(buttonSize);
         editExpenseButton.addActionListener(e -> editSelectedExpense());
-        JButton deleteExpenseButton = new JButton("Delete Expense");
+        addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('E'), "EditExpense");
+        addExpenseButton.getActionMap().put("EditExpense", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editSelectedExpense();
+            }
+        });
+        addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('e'), "EditExpense");
+        addExpenseButton.getActionMap().put("EditExpense", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editSelectedExpense();
+            }
+        });
+        JButton deleteExpenseButton = new JButton("Delete Expense | D");
         deleteExpenseButton.setPreferredSize(buttonSize);
         deleteExpenseButton.setMaximumSize(buttonSize);
         deleteExpenseButton.setMinimumSize(buttonSize);
         deleteExpenseButton.addActionListener(e -> removeSelectedExpense());
+        addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('D'), "RemoveExpense");
+        addExpenseButton.getActionMap().put("RemoveExpense", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeSelectedExpense();
+            }
+        });
+        addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('d'), "RemoveExpense");
+        addExpenseButton.getActionMap().put("RemoveExpense", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeSelectedExpense();
+            }
+        });
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.add(addExpenseButton);
@@ -111,7 +157,7 @@ public class ExpenseManagerGUI extends JFrame {
             // Add loaded expenses to the manager.
             for (Expense expense : loadedExpenses) {
                 expenseManager.addExpense(expense);
-                tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount()});
+                tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount(), expense.getCurrency()});
             }
             JOptionPane.showMessageDialog(this, "Expenses loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             updateTotalExpensesByCategoryDisplay();
@@ -133,7 +179,7 @@ public class ExpenseManagerGUI extends JFrame {
     }
 
     private void setupTable() {
-        String[] columnNames = {"Description", "Date", "Category", "Amount (HUF)"};
+        String[] columnNames = {"Description", "Date", "Category", "Amount", "Currency"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
@@ -176,44 +222,60 @@ public class ExpenseManagerGUI extends JFrame {
 
     private void showAddExpenseDialog() {
         boolean validExpenseAdded = false; // To track if the expense the user is aiming to add is valid or not.
+        String tempName = "";
+        String tempDate = "";
+        String tempAmount = "";
+        String tempCategory = "";
+        String tempCurrency = "";
 
         while (!validExpenseAdded) { // Keep prompting the user until it's valid.
             JTextField nameField = new JTextField(10);
             JTextField dateField = new JTextField(10);
             JTextField amountField = new JTextField(10);
             JComboBox<String> categoryComboBox = new JComboBox<>(CATEGORIES);
+            JComboBox<String> currencyComboBox = new JComboBox<>(CURRENCIES);
 
             JPanel panel = new JPanel(new GridLayout(0, 2));
             panel.add(new JLabel("Name:"));
             panel.add(nameField);
-            panel.add(new JLabel("Date:"));
+            panel.add(new JLabel("Date (optional):"));
             panel.add(dateField);
             panel.add(new JLabel("Category:"));
             panel.add(categoryComboBox);
             panel.add(new JLabel("Amount:"));
             panel.add(amountField);
+            panel.add(new JLabel("Currency:"));
+            panel.add(currencyComboBox);
 
             int result = JOptionPane.showConfirmDialog(null, panel,
                     "Add New Expense", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (result == JOptionPane.OK_OPTION) {
-                validExpenseAdded = addExpense(nameField.getText(), dateField.getText(),
-                        (String) categoryComboBox.getSelectedItem(), amountField.getText());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String date = dateField.getText().isEmpty() ? LocalDate.now().format(formatter) : dateField.getText();
+                validExpenseAdded = addExpense(nameField.getText(), date,
+                        (String) categoryComboBox.getSelectedItem(), amountField.getText(), (String) Objects.requireNonNull(currencyComboBox.getSelectedItem()));
+                if (!validExpenseAdded) {
+                    tempName = nameField.getText();
+                    tempDate = dateField.getText();
+                    tempAmount = amountField.getText();
+                    tempCategory = (String) categoryComboBox.getSelectedItem();
+                    tempCurrency = (String) currencyComboBox.getSelectedItem();
+                }
             } else {
                 break;
             }
         }
     }
 
-    private boolean addExpense(String name, String date, String category, String amount) {
+    private boolean addExpense(String name, String date, String category, String amount, String currency) {
         try {
             double amountValue = Double.parseDouble(amount);
-            Expense newExpense = new Expense(name, date, category, amountValue);
-
+            Expense newExpense = new Expense(name, date, category, amountValue, currency);
             // Add the expense to ExpenseManager.
             expenseManager.addExpense(newExpense);
             updateMonthComboBox();
             // Update the JTable.
-            tableModel.addRow(new Object[]{name, date, category, amountValue});
+            tableModel.addRow(new Object[]{name, date, category, amountValue, currency});
             updateTotalExpensesByCategoryDisplay();
             return true;
         } catch (NumberFormatException e) {
@@ -272,6 +334,8 @@ public class ExpenseManagerGUI extends JFrame {
         JTextField dateField = new JTextField(existingExpense.getDate());
         JTextField amountField = new JTextField(String.valueOf(existingExpense.getAmount()));
         JComboBox<String> categoryComboBox = new JComboBox<>(CATEGORIES);
+        JComboBox<String> currencyComboBox = new JComboBox<>(CURRENCIES);
+        currencyComboBox.setSelectedItem(existingExpense.getCurrency());
         categoryComboBox.setSelectedItem(existingExpense.getCategory());
 
         // Create a panel to hold these components, similar to the addExpenseDialog
@@ -284,6 +348,8 @@ public class ExpenseManagerGUI extends JFrame {
         panel.add(categoryComboBox);
         panel.add(new JLabel("Amount:"));
         panel.add(amountField);
+        panel.add(new JLabel("Currency:"));
+        panel.add(currencyComboBox);
 
         // Display the dialog and get the user's input.
         int result = JOptionPane.showConfirmDialog(null, panel, "Edit Expense, check the data first!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -291,7 +357,7 @@ public class ExpenseManagerGUI extends JFrame {
             try {
                 // Parse the amount as a double and return a new Expense object with the updated data.
                 double amountValue = Double.parseDouble(amountField.getText());
-                return new Expense(nameField.getText(), dateField.getText(), (String) categoryComboBox.getSelectedItem(), amountValue);
+                return new Expense(nameField.getText(), dateField.getText(), (String) categoryComboBox.getSelectedItem(), amountValue, (String)currencyComboBox.getSelectedItem());
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Invalid amount format", "Invalid Input", JOptionPane.ERROR_MESSAGE);
                 return null; // Indicate to the caller that the update was not successful.
@@ -306,6 +372,7 @@ public class ExpenseManagerGUI extends JFrame {
         tableModel.setValueAt(expense.getDate(), rowIndex, 1);
         tableModel.setValueAt(expense.getCategory(), rowIndex, 2);
         tableModel.setValueAt(expense.getAmount(), rowIndex, 3);
+        tableModel.setValueAt(expense.getCurrency(), rowIndex, 4);
     }
 
     private void initializeMonthComboBox() {
@@ -347,7 +414,7 @@ public class ExpenseManagerGUI extends JFrame {
         List<Expense> allExpenses = expenseManager.getAllExpenses();
         tableModel.setRowCount(0); // Clear the table first.
         for (Expense expense : allExpenses) {
-            tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount()});
+            tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount(), expense.getCurrency()});
         }
     }
 
@@ -355,7 +422,7 @@ public class ExpenseManagerGUI extends JFrame {
         List<Expense> expensesForMonth = expenseManager.getExpensesGroupedByMonth().get(yearMonth);
         tableModel.setRowCount(0); // Clear the table first.
         for (Expense expense : expensesForMonth) {
-            tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount()});
+            tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount(), expense.getCurrency()});
             updateTotalsForSelectedMonth();
         }
     }

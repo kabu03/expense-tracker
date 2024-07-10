@@ -17,8 +17,8 @@ public class ExpenseFileHandlerTest {
     @BeforeEach
     public void setUp() throws IOException {
         handler = new ExpenseFileHandler(testFileName);
-        testExpenseManager.addExpense(new Expense("Lunch", "10/10/2023", "Food", 2300));
-        testExpenseManager.addExpense(new Expense("Netflix", "11/10/2023", "Entertainment", 5750));
+        testExpenseManager.addExpense(new Expense("Lunch", "10/10/2023", "Food", 2300, "HUF"));
+        testExpenseManager.addExpense(new Expense("Netflix", "11/10/2023", "Entertainment", 5750, "HUF"));
         // Save the test expenses to the file
         handler.saveExpensesToFile(testExpenseManager.getAllExpenses());
     }
