@@ -19,7 +19,8 @@ public class Expense implements Serializable { // For serialization.
     private String date;
     private String category;
     private double amount;
-    private final String currency;
+    private String currency;
+
 
     private static final List<String> allowedCategoryNames = Arrays.asList("food", "rent", "groceries", "utilities", "transportation", "entertainment", "other");
 
@@ -95,8 +96,7 @@ public class Expense implements Serializable { // For serialization.
         }
     }
 
-    // Method to convert currency
-    public void convertCurrency(String targetCurrency) throws IOException {
+    public double displayExpenseAs(String targetCurrency) throws IOException {
         String apiKey = System.getenv("EXCHANGE_RATE_API_KEY");
         if (apiKey == null) {
             throw new IllegalStateException("API key not found in environment variables");
@@ -112,9 +112,16 @@ public class Expense implements Serializable { // For serialization.
             String result = EntityUtils.toString(entity);
             JSONObject json = new JSONObject(result);
             double conversionRate = json.getDouble("conversion_rate");
-
-            // Convert amount
-            this.amount *= conversionRate;
+            return this.amount * conversionRate;
+        }
+        return 0; // Return 0 or an appropriate value in case of failure
+    }
+    public void convertExpenseCurrency(String targetCurrency) throws IOException {
+        double convertedAmount = displayExpenseAs(targetCurrency);
+        if (convertedAmount > 0) { // Check to ensure conversion was successful
+            System.out.println("The expense has changed from " + this.amount + " " + this.currency + " to " + convertedAmount + " " + targetCurrency);
+            this.amount = convertedAmount;
+            this.currency = targetCurrency;
         }
     }
 
@@ -125,11 +132,11 @@ public class Expense implements Serializable { // For serialization.
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Expense expense = (Expense) o;
-        return Double.compare(expense.amount, amount) == 0 && date.equals(expense.date) && category.equals(expense.category) && name.equals(expense.name);
+        return Double.compare(expense.amount, amount) == 0 && date.equals(expense.date) && category.equals(expense.category) && name.equals(expense.name) && currency.equals(expense.currency);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, category, name, amount);
+        return Objects.hash(date, category, name, amount, currency);
     }
 }
