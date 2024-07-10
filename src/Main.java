@@ -31,18 +31,18 @@ public class Main {
         UIManager.put("nimbusLightBackground", new Color(4, 24, 44)); // Light background color
         UIManager.put("nimbusSelectionBackground", new Color(255, 255, 255)); // Background color when an item is selected
         UIManager.put("Table.background", new Color(4, 24, 44)); // Background color for tables
-        UIManager.put("Table.gridColor", new Color(0, 10, 20)); // Grid color for tables
+       UIManager.put("Table.gridColor", new Color(0, 10, 20)); // Grid color for tables
         UIManager.put("TableHeader.background", new Color(0, 21, 41)); // Background color for table headers
-        UIManager.put("Panel.background", new Color(0, 10, 20));
+      //  UIManager.put("Panel.background", new Color(0, 10, 20));
         UIManager.put("ScrollPane.background", new Color(0, 21, 41));
         UIManager.put("Viewport.background", new Color(0, 21, 41));
         UIManager.put("TextField.background", new Color(4, 24, 44));
         UIManager.put("PasswordField.background", new Color(4, 24, 44));
         UIManager.put("TextArea.background", new Color(4, 24, 44));
-        UIManager.put("Button.background", new Color(3, 18, 33));
+       UIManager.put("Button.background", new Color(3, 18, 33));
         UIManager.put("Menu.background", new Color(0, 21, 41));
         UIManager.put("MenuItem.background", new Color(0, 21, 41));
-        UIManager.put("MenuBar.background", new Color(0, 31, 51));
+       UIManager.put("MenuBar.background", new Color(0, 31, 51));
 
         // Foregrounds and Texts: Lighter Blues
         UIManager.put("nimbusDisabledText", new Color(88, 124, 153)); // Disabled text color
