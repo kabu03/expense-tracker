@@ -1,5 +1,5 @@
-import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 // A class for testing with JUnit. I have provided more details in the documentation.
@@ -48,9 +47,7 @@ public class ExpenseManagerTest {
 
     @Test
     public void testAddInvalidExpense() {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            expenseManager.addExpense(new Expense("", "invalid-date", "Food", -10.0, "HUF"));
-        });
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> expenseManager.addExpense(new Expense("", "invalid-date", "Food", -10.0, "HUF")));
         String expectedMessage = "Invalid date format: " + "invalid-date" + ", please use dd/MM/yyyy.";
         String actualMessage = exception.getMessage();
         assertTrue(actualMessage.contains(expectedMessage));
