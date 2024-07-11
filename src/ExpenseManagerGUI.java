@@ -221,20 +221,14 @@ public class ExpenseManagerGUI extends JFrame {
     }
 
     private void showAddExpenseDialog() {
-        boolean validExpenseAdded = false; // To track if the expense the user is aiming to add is valid or not.
-        String tempName = "";
-        String tempDate = "";
-        String tempAmount = "";
-        String tempCategory = "";
-        String tempCurrency = "";
+        boolean validExpenseAdded = false;
+        JTextField nameField = new JTextField(10);
+        JTextField dateField = new JTextField(10);
+        JTextField amountField = new JTextField(10);
+        JComboBox<String> categoryComboBox = new JComboBox<>(CATEGORIES);
+        JComboBox<String> currencyComboBox = new JComboBox<>(CURRENCIES);
 
-        while (!validExpenseAdded) { // Keep prompting the user until it's valid.
-            JTextField nameField = new JTextField(10);
-            JTextField dateField = new JTextField(10);
-            JTextField amountField = new JTextField(10);
-            JComboBox<String> categoryComboBox = new JComboBox<>(CATEGORIES);
-            JComboBox<String> currencyComboBox = new JComboBox<>(CURRENCIES);
-
+        while (!validExpenseAdded) {
             JPanel panel = new JPanel(new GridLayout(0, 2));
             panel.add(new JLabel("Name:"));
             panel.add(nameField);
@@ -247,22 +241,12 @@ public class ExpenseManagerGUI extends JFrame {
             panel.add(new JLabel("Currency:"));
             panel.add(currencyComboBox);
 
-            int result = JOptionPane.showConfirmDialog(null, panel,
-                    "Add New Expense", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int result = JOptionPane.showConfirmDialog(null, panel, "Add New Expense", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (result == JOptionPane.OK_OPTION) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                String date = dateField.getText().isEmpty() ? "06/06/2003" : dateField.getText();
-                validExpenseAdded = addExpense(nameField.getText(), date,
-                        (String) categoryComboBox.getSelectedItem(), amountField.getText(), (String) Objects.requireNonNull(currencyComboBox.getSelectedItem()));
-                if (!validExpenseAdded) {
-                    tempName = nameField.getText();
-                    tempDate = dateField.getText();
-                    tempAmount = amountField.getText();
-                    tempCategory = (String) categoryComboBox.getSelectedItem();
-                    tempCurrency = (String) currencyComboBox.getSelectedItem();
-                }
+                String date = dateField.getText().isEmpty() ? "06/06/2003" : dateField.getText(); // Default to current date if empty
+                validExpenseAdded = addExpense(nameField.getText(), date, (String) categoryComboBox.getSelectedItem(), amountField.getText(), (String) currencyComboBox.getSelectedItem());
             } else {
-                break;
+                break; // Exit the loop if the user cancels the dialog
             }
         }
     }
@@ -357,7 +341,7 @@ public class ExpenseManagerGUI extends JFrame {
                 // Parse the amount as a double and return a new Expense object with the updated data.
                 double amountValue = Double.parseDouble(amountField.getText());
                 Expense updatedExpense = new Expense(nameField.getText(), dateField.getText(), (String) categoryComboBox.getSelectedItem(), amountValue, existingExpense.getCurrency());
-                String chosenCurrency = (String)currencyComboBox.getSelectedItem();
+                String chosenCurrency = (String) currencyComboBox.getSelectedItem();
                 updatedExpense.convertExpenseCurrency(chosenCurrency);
                 return updatedExpense;
             } catch (NumberFormatException e) {
