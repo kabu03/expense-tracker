@@ -204,7 +204,7 @@ public class ExpenseManagerGUI extends JFrame {
 
         // Clear previous totals if any.
         totalsPanel.removeAll();
-        totalsPanel.add(new JLabel("Overall Spending:"));
+        totalsPanel.add(new JLabel("Overall Spending (in JOD):"));
 
         // Add new totals.
         refreshTotalsPanel(totals);
@@ -251,7 +251,7 @@ public class ExpenseManagerGUI extends JFrame {
                     "Add New Expense", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (result == JOptionPane.OK_OPTION) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                String date = dateField.getText().isEmpty() ? LocalDate.now().format(formatter) : dateField.getText();
+                String date = dateField.getText().isEmpty() ? "06/06/2003" : dateField.getText();
                 validExpenseAdded = addExpense(nameField.getText(), date,
                         (String) categoryComboBox.getSelectedItem(), amountField.getText(), (String) Objects.requireNonNull(currencyComboBox.getSelectedItem()));
                 if (!validExpenseAdded) {
@@ -348,19 +348,23 @@ public class ExpenseManagerGUI extends JFrame {
         panel.add(categoryComboBox);
         panel.add(new JLabel("Amount:"));
         panel.add(amountField);
-        panel.add(new JLabel("Currency:"));
+        panel.add(new JLabel("Convert Currency"));
         panel.add(currencyComboBox);
-
         // Display the dialog and get the user's input.
         int result = JOptionPane.showConfirmDialog(null, panel, "Edit Expense, check the data first!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             try {
                 // Parse the amount as a double and return a new Expense object with the updated data.
                 double amountValue = Double.parseDouble(amountField.getText());
-                return new Expense(nameField.getText(), dateField.getText(), (String) categoryComboBox.getSelectedItem(), amountValue, (String)currencyComboBox.getSelectedItem());
+                Expense updatedExpense = new Expense(nameField.getText(), dateField.getText(), (String) categoryComboBox.getSelectedItem(), amountValue, existingExpense.getCurrency());
+                String chosenCurrency = (String)currencyComboBox.getSelectedItem();
+                updatedExpense.convertExpenseCurrency(chosenCurrency);
+                return updatedExpense;
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Invalid amount format", "Invalid Input", JOptionPane.ERROR_MESSAGE);
                 return null; // Indicate to the caller that the update was not successful.
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         } else {
             return null;
