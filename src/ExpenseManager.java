@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -73,7 +74,13 @@ public class ExpenseManager {
         String[] categories = {"Food", "Rent", "Groceries", "Utilities", "Transportation", "Entertainment", "Other"};
         for (String category : categories) {
             List<Expense> expensesByCategory = getExpensesByCategory(category);
-            double sum = expensesByCategory.stream().mapToDouble(Expense::getAmount).sum();
+            double sum = expensesByCategory.stream().mapToDouble(expense -> {
+                try {
+                    return expense.displayExpenseAs("JOD");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }).sum();
             totals.put(category, sum);
         }
         return totals;
