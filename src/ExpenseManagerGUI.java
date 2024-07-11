@@ -3,10 +3,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class ExpenseManagerGUI extends JFrame {
@@ -19,7 +17,40 @@ public class ExpenseManagerGUI extends JFrame {
     private JPanel totalsPanel; // This panel will store the totals for every category.
     private JComboBox<YearMonth> monthComboBox; // This combo box will let the user choose a month to filter expenses.
     private final String[] CATEGORIES = {"Food", "Rent", "Groceries", "Utilities", "Transportation", "Entertainment", "Other"};
-    private final String[] CURRENCIES = {"HUF", "EUR", "JOD", "USD"};
+    private final String[] CURRENCIES = {
+            "HUF", // Hungarian Forint
+            "JOD", // Jordanian Dinar
+            "EUR", // Euro
+            "USD", // United States Dollar
+            "JPY", // Japanese Yen
+            "GBP", // British Pound
+            "AUD", // Australian Dollar
+            "CAD", // Canadian Dollar
+            "CHF", // Swiss Franc
+            "CNY", // Chinese Yuan
+            "SEK", // Swedish Krona
+            "NZD", // New Zealand Dollar
+            "MXN", // Mexican Peso
+            "BHD", // Bahraini Dinar
+            "KWD", // Kuwaiti Dinar
+            "SGD", // Singapore Dollar
+            "NOK", // Norwegian Krone
+            "KRW", // South Korean Won
+            "TRY", // Turkish Lira
+            "RUB", // Russian Ruble
+            "INR", // Indian Rupee
+            "BRL", // Brazilian Real
+            "ZAR", // South African Rand
+            "DKK", // Danish Krone
+            "PLN", // Polish Zloty
+            "TWD", // Taiwan Dollar
+            "THB", // Thai Baht
+            "IDR", // Indonesian Rupiah
+            "CZK", // Czech Koruna
+            "AED", // United Arab Emirates Dirham
+            "CLP", // Chilean Peso
+            "PHP"  // Philippine Peso
+    };
 
     boolean totalsPanelVisible = false;
 
