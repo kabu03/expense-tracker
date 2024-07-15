@@ -1,3 +1,9 @@
+package test;
+
+import com.example.model.Expense;
+import com.example.model.ExpenseManager;
+import com.example.service.ExpenseService;
+import com.example.utils.ExpenseFileHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ExpenseFileHandlerTest {
     private final String testFileName = "testExpenses.ser"; // Using a test file to avoid overwriting real data
     private ExpenseFileHandler handler;
-    private final ExpenseManager testExpenseManager = new ExpenseManager();
+    private final ExpenseService expenseService = new ExpenseService();
+    private final ExpenseFileHandler expenseFileHandler = new ExpenseFileHandler();
+    private final ExpenseManager testExpenseManager = new ExpenseManager(expenseService, expenseFileHandler);
 
     @BeforeEach
     public void setUp() throws IOException {

@@ -1,3 +1,8 @@
+package com.example.model;
+
+import com.example.service.ExpenseService;
+import com.example.utils.ExpenseFileHandler;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -6,11 +11,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExpenseManager {
+    public final ExpenseService service;
+    private final ExpenseFileHandler fileHandler;
     private final List<Expense> expenses;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // Allowed date-time format.
 
-    public ExpenseManager() {
+    public ExpenseManager(ExpenseService service, ExpenseFileHandler fileHandler) {
         expenses = new LinkedList<>();
+        if (service == null) {
+            throw new IllegalArgumentException("ExpenseService cannot be null");
+        }
+        this.service = service;
+        this.fileHandler = fileHandler;
     } // Storing all expenses in a linked list.
 
     public void addExpense(Expense expense) {
@@ -19,11 +31,14 @@ public class ExpenseManager {
         }
     }
 
-    public boolean removeExpense(Expense expense) {
-        if (expense == null) {
+    public boolean removeExpense(int index) {
+        // Check if the index is within the valid range and non-negative
+        if (index < 0 || index >= expenses.size()) {
             return false;
         }
-        return expenses.remove(expense);
+        // Remove the expense at the specified index
+        expenses.remove(index);
+        return true;
     }
 
     public void editExpense(Expense oldExpense, Expense newExpense) {
@@ -76,7 +91,7 @@ public class ExpenseManager {
             List<Expense> expensesByCategory = getExpensesByCategory(category);
             double sum = expensesByCategory.stream().mapToDouble(expense -> {
                 try {
-                    return expense.displayExpenseAs("JOD");
+                    return service.displayExpenseAs(expense, "JOD");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -113,5 +128,16 @@ public class ExpenseManager {
     @Override
     public int hashCode() {
         return expenses.hashCode();
+    }
+
+    public List<Expense> loadExpenses() throws IOException, ClassNotFoundException {
+        List<Expense> loadedExpenses = fileHandler.loadExpensesFromFile();
+        clearExpenses();
+        expenses.addAll(loadedExpenses);
+        return loadedExpenses;
+    }
+
+    public void saveExpenses() throws IOException {
+        fileHandler.saveExpensesToFile(getAllExpenses());
     }
 }

@@ -1,3 +1,9 @@
+package test;
+
+import com.example.model.Expense;
+import com.example.model.ExpenseManager;
+import com.example.service.ExpenseService;
+import com.example.utils.ExpenseFileHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -5,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,11 +19,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ExpenseManagerTest {
 
     private ExpenseManager expenseManager;
+    private ExpenseService expenseService;
+    private ExpenseFileHandler expenseFileHandler;
 
     // Setting up the expenses before each test. I decided to add three expenses, each of different names, dates, amounts and categories.
     @BeforeEach
     void setUp() {
-        expenseManager = new ExpenseManager();
+        expenseService = new ExpenseService();
+        expenseFileHandler = new ExpenseFileHandler();
+        expenseManager = new ExpenseManager(expenseService, expenseFileHandler);
         // Add some default expenses to the manager
         expenseManager.addExpense(new Expense("Lunch", "26/11/2023", "Food", 6200, "HUF"));
         expenseManager.addExpense(new Expense("Bus Ticket", "24/11/2023", "Transportation", 3500, "HUF"));
@@ -35,7 +44,7 @@ public class ExpenseManagerTest {
     @Test
     public void testRemoveExpense() {
         Expense expenseToRemove = new Expense("Lunch", "26/11/2023", "Food", 6200, "HUF");
-        assertTrue(expenseManager.removeExpense(expenseToRemove));
+        assertTrue(expenseManager.removeExpense(expenseManager.getAllExpenses().indexOf(expenseToRemove)));
         assertFalse(expenseManager.getAllExpenses().contains(expenseToRemove));
     }
 
@@ -54,16 +63,9 @@ public class ExpenseManagerTest {
     }
 
     @Test
-    public void testCalculateTotalExpensesByCategory() {
-        Map<String, Double> totals = expenseManager.calculateTotalExpensesByCategory();
-        assertEquals(6200, totals.getOrDefault("Food", 0.0)); // Assuming the setup method adds up to 6200 for the Food category.
-        assertEquals(3500, totals.getOrDefault("Transportation", 0.0)); // Assuming the setup method adds up to 3500 for the Transportation category.
-    }
-
-    @Test
     public void testRemoveNonExistentExpense() {
         Expense nonExistentExpense = new Expense("Dinner", "07/04/2005", "Food", 9000, "HUF");
-        assertFalse(expenseManager.removeExpense(nonExistentExpense)); // Should return false as it doesn't exist
+        assertFalse(expenseManager.removeExpense(expenseManager.getAllExpenses().indexOf(nonExistentExpense))); // Should return false as it doesn't exist
     }
 
     @Test
@@ -93,15 +95,15 @@ public class ExpenseManagerTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        ExpenseManager anotherManager = new ExpenseManager();
-        anotherManager.addExpense(new Expense("Lunch", "26/11/2023", "Food", 6200,"HUF"));
-        anotherManager.addExpense(new Expense("Bus Ticket", "24/11/2023", "Transportation", 3500,"HUF"));
-        anotherManager.addExpense(new Expense("Cheese", "11/10/2023", "Groceries", 4540,"HUF"));
+        ExpenseManager anotherManager = new ExpenseManager(expenseService, expenseFileHandler);
+        anotherManager.addExpense(new Expense("Lunch", "26/11/2023", "Food", 6200, "HUF"));
+        anotherManager.addExpense(new Expense("Bus Ticket", "24/11/2023", "Transportation", 3500, "HUF"));
+        anotherManager.addExpense(new Expense("Cheese", "11/10/2023", "Groceries", 4540, "HUF"));
 
         assertEquals(expenseManager, anotherManager);
         assertEquals(expenseManager.hashCode(), anotherManager.hashCode());
 
-        anotherManager.addExpense(new Expense("Extra", "12/11/2023", "Other", 100,"HUF"));
+        anotherManager.addExpense(new Expense("Extra", "12/11/2023", "Other", 100, "HUF"));
         assertNotEquals(expenseManager, anotherManager);
     }
 

@@ -1,12 +1,7 @@
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
+// This class represents a single expense entry.
 
-import java.io.IOException;
+package com.example.model;
+
 import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -14,30 +9,32 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class Expense implements Serializable { // For serialization.
+public class Expense implements Serializable { // To allow for serialization.
     private String name;
     private String date;
     private String category;
     private double amount;
     private String currency;
 
-
     private static final List<String> allowedCategoryNames = Arrays.asList("food", "rent", "groceries", "utilities", "transportation", "entertainment", "other");
 
     // A predefined category type list.
-    // Constructor.
     public Expense(String name, String date, String category, double amount, String currency) {
-        this.name = name;
+        setName(name);
         if (!setDate(date)) {
             throw new IllegalArgumentException("Invalid date format: " + date + ", please use dd/MM/yyyy.");
         }
         setCategory(category);
-        this.amount = amount;
-        this.currency = currency;
+        setAmount(amount);
+        setCurrency(currency);
     }
 
     public String getCurrency() {
         return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
     }
 
     // I used the setter methods in the constructor to make sure the date and category inputs are valid.
@@ -93,35 +90,6 @@ public class Expense implements Serializable { // For serialization.
             return true;
         } catch (DateTimeParseException e) {
             return false;
-        }
-    }
-
-    public double displayExpenseAs(String targetCurrency) throws IOException {
-        String apiKey = System.getenv("EXCHANGE_RATE_API_KEY");
-        if (apiKey == null) {
-            throw new IllegalStateException("API key not found in environment variables");
-        }
-        String apiUrl = String.format("https://v6.exchangerate-api.com/v6/%s/pair/%s/%s", apiKey, this.currency, targetCurrency);
-
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet request = new HttpGet(apiUrl);
-        HttpResponse response = httpClient.execute(request);
-        HttpEntity entity = response.getEntity();
-
-        if (entity != null) {
-            String result = EntityUtils.toString(entity);
-            JSONObject json = new JSONObject(result);
-            double conversionRate = json.getDouble("conversion_rate");
-            return this.amount * conversionRate;
-        }
-        return 0; // Return 0 or an appropriate value in case of failure
-    }
-    public void convertExpenseCurrency(String targetCurrency) throws IOException {
-        double convertedAmount = displayExpenseAs(targetCurrency);
-        if (convertedAmount > 0) { // Check to ensure conversion was successful
-            System.out.println("The expense has changed from " + this.amount + " " + this.currency + " to " + convertedAmount + " " + targetCurrency);
-            this.amount = convertedAmount;
-            this.currency = targetCurrency;
         }
     }
 

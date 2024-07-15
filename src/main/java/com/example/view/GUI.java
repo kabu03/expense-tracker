@@ -1,3 +1,8 @@
+package com.example.view;
+
+import com.example.controller.ExpenseController;
+import com.example.model.Expense;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -7,56 +12,17 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.*;
 
-public class ExpenseManagerGUI extends JFrame {
-    private JTable expensesTable; // The table storing the expenses.
-    private DefaultTableModel tableModel; // The table model to use for the expenses table (default).
-    private final ExpenseManager expenseManager; // A reference to a expenseManager.
-    private final ExpenseFileHandler fileHandler; // A reference to a fileHandler.
-
+public class GUI extends JFrame {
+    public JTable expensesTable; // The table storing the expenses.
+    public DefaultTableModel tableModel; // The table model to use for the expenses table (default).
+    private final ExpenseController controller; // The controller to handle user actions.
     private JButton showTotalsButton;
     private JPanel totalsPanel; // This panel will store the totals for every category.
-    private JComboBox<YearMonth> monthComboBox; // This combo box will let the user choose a month to filter expenses.
-    private final String[] CATEGORIES = {"Food", "Rent", "Groceries", "Utilities", "Transportation", "Entertainment", "Other"};
-    private final String[] CURRENCIES = {
-            "HUF", // Hungarian Forint
-            "JOD", // Jordanian Dinar
-            "EUR", // Euro
-            "USD", // United States Dollar
-            "JPY", // Japanese Yen
-            "GBP", // British Pound
-            "AUD", // Australian Dollar
-            "CAD", // Canadian Dollar
-            "CHF", // Swiss Franc
-            "CNY", // Chinese Yuan
-            "SEK", // Swedish Krona
-            "NZD", // New Zealand Dollar
-            "MXN", // Mexican Peso
-            "BHD", // Bahraini Dinar
-            "KWD", // Kuwaiti Dinar
-            "SGD", // Singapore Dollar
-            "NOK", // Norwegian Krone
-            "KRW", // South Korean Won
-            "TRY", // Turkish Lira
-            "RUB", // Russian Ruble
-            "INR", // Indian Rupee
-            "BRL", // Brazilian Real
-            "ZAR", // South African Rand
-            "DKK", // Danish Krone
-            "PLN", // Polish Zloty
-            "TWD", // Taiwan Dollar
-            "THB", // Thai Baht
-            "IDR", // Indonesian Rupiah
-            "CZK", // Czech Koruna
-            "AED", // United Arab Emirates Dirham
-            "CLP", // Chilean Peso
-            "PHP"  // Philippine Peso
-    };
+    public JComboBox<YearMonth> monthComboBox; // This combo box will let the user choose a month to filter expenses.
+    public boolean totalsPanelVisible = false;
 
-    boolean totalsPanelVisible = false;
-
-    public ExpenseManagerGUI(ExpenseManager expenseManager, ExpenseFileHandler fileHandler) {
-        this.expenseManager = expenseManager;
-        this.fileHandler = fileHandler; // Initialize file handler, ComboBox and GUI.
+    public GUI(ExpenseController controller) {
+        this.controller = controller;
         initializeMonthComboBox();
         initializeGUI();
     }
@@ -88,48 +54,33 @@ public class ExpenseManagerGUI extends JFrame {
     private JPanel getSouthPanel() {
         // Panel for operation buttons (add, edit, delete) in a separate method.
         JPanel buttonPanel = getOperationButtonPanel();
-
         monthComboBox.setPreferredSize(new Dimension(200, 20));
         // Creating a panel for the month combo box.
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         filterPanel.add(new JLabel("Filter by Month:"));
         filterPanel.add(monthComboBox);
-
         // Button to show/hide totals
         showTotalsButton = new JButton("Show Overall Spending (JOD)");
         showTotalsButton.addActionListener(e -> toggleTotalsPanelVisibility());
-
         // Panel for the show totals button
         JPanel showTotalsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         showTotalsPanel.add(showTotalsButton);
-
         totalsPanel = new JPanel();
         totalsPanel.setLayout(new BoxLayout(totalsPanel, BoxLayout.Y_AXIS));
         JLabel titleLabel = new JLabel("Totals:");
         titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         totalsPanel.add(titleLabel);
         totalsPanel.setVisible(false); // Initially hide the totals panel
-
         int top = 0, left = 20, bottom = 0, right = 50;
         totalsPanel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
-
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(buttonPanel, BorderLayout.WEST);
         southPanel.add(filterPanel, BorderLayout.CENTER);
-        // Create a Box container with horizontal layout
-        Box eastBox = Box.createHorizontalBox();
-
-// Add the totalsPanel first so it appears to the left
-        eastBox.add(totalsPanel);
-
-// Add some horizontal space between the totalsPanel and the showTotalsPanel
-        eastBox.add(Box.createHorizontalStrut(10)); // Adjust the 10 to increase or decrease the space
-
-// Add the showTotalsPanel next so it appears to the right
-        eastBox.add(showTotalsPanel);
-
-// Now, add the entire Box container to the EAST of the southPanel
-        southPanel.add(eastBox, BorderLayout.EAST);
+        Box eastBox = Box.createHorizontalBox(); // Create a Box container with horizontal layout
+        eastBox.add(totalsPanel); // Add the totalsPanel first so it appears to the left
+        eastBox.add(Box.createHorizontalStrut(10)); // Add some horizontal space between the totalsPanel and the showTotalsPanel
+        eastBox.add(showTotalsPanel); // Add the showTotalsPanel next so it appears to the right
+        southPanel.add(eastBox, BorderLayout.EAST); // Now, add the entire Box container to the EAST of the southPanel
         return southPanel;
     }
 
@@ -174,38 +125,38 @@ public class ExpenseManagerGUI extends JFrame {
         editExpenseButton.setPreferredSize(buttonSize);
         editExpenseButton.setMaximumSize(buttonSize);
         editExpenseButton.setMinimumSize(buttonSize);
-        editExpenseButton.addActionListener(e -> editSelectedExpense());
+        editExpenseButton.addActionListener(e -> controller.editSelectedExpense());
         addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('E'), "EditExpense");
         addExpenseButton.getActionMap().put("EditExpense", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                editSelectedExpense();
+                controller.editSelectedExpense();
             }
         });
         addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('e'), "EditExpense");
         addExpenseButton.getActionMap().put("EditExpense", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                editSelectedExpense();
+                controller.editSelectedExpense();
             }
         });
         JButton deleteExpenseButton = new JButton("Delete Expense | D");
         deleteExpenseButton.setPreferredSize(buttonSize);
         deleteExpenseButton.setMaximumSize(buttonSize);
         deleteExpenseButton.setMinimumSize(buttonSize);
-        deleteExpenseButton.addActionListener(e -> removeSelectedExpense());
+        deleteExpenseButton.addActionListener(e -> controller.removeSelectedExpense());
         addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('D'), "RemoveExpense");
         addExpenseButton.getActionMap().put("RemoveExpense", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                removeSelectedExpense();
+                controller.removeSelectedExpense();
             }
         });
         addExpenseButton.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('d'), "RemoveExpense");
         addExpenseButton.getActionMap().put("RemoveExpense", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                removeSelectedExpense();
+                controller.removeSelectedExpense();
             }
         });
         JPanel buttonPanel = new JPanel();
@@ -218,35 +169,29 @@ public class ExpenseManagerGUI extends JFrame {
 
     private void loadExpenses() {
         try {
-            List<Expense> loadedExpenses = fileHandler.loadExpensesFromFile();
+            List<Expense> loadedExpenses = controller.loadExpenses();
             // Clear existing data first.
             tableModel.setRowCount(0);
-            expenseManager.clearExpenses();
 
-            // Add loaded expenses to the manager.
+            // Add loaded expenses to the table.
             for (Expense expense : loadedExpenses) {
-                expenseManager.addExpense(expense);
                 tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount(), expense.getCurrency()});
             }
             JOptionPane.showMessageDialog(this, "Expenses loaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             if (totalsPanelVisible) updateTotalExpensesByCategoryDisplay();
             updateMonthComboBox();
-            expenseManager.printExpenses(); // For debugging purposes.
         } catch (IOException | ClassNotFoundException e) {
             JOptionPane.showMessageDialog(null, "Error loading expenses: " + e.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void saveExpenses() {
         try {
-            List<Expense> expensesToSave = expenseManager.getAllExpenses(); // Method to retrieve all expenses
-            fileHandler.saveExpensesToFile(expensesToSave);
+            controller.saveExpenses();
             JOptionPane.showMessageDialog(this, "Expenses saved successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Error saving expenses: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void setupTable() {
         String[] columnNames = {"Description", "Date", "Category", "Amount", "Currency"};
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -268,14 +213,10 @@ public class ExpenseManagerGUI extends JFrame {
         expensesTable.setAutoCreateRowSorter(true);
     }
 
-    private void updateTotalExpensesByCategoryDisplay() {
-        Map<String, Double> totals = expenseManager.calculateTotalExpensesByCategory();
-
-        // Clear previous totals if any.
+    public void updateTotalExpensesByCategoryDisplay() {
+        Map<String, Double> totals = controller.calculateTotalExpensesByCategory();
         totalsPanel.removeAll();
         totalsPanel.add(new JLabel("Overall Spending (in JOD):"));
-
-        // Add new totals.
         refreshTotalsPanel(totals);
     }
 
@@ -294,8 +235,8 @@ public class ExpenseManagerGUI extends JFrame {
         JTextField nameField = new JTextField(10);
         JTextField dateField = new JTextField(10);
         JTextField amountField = new JTextField(10);
-        JComboBox<String> categoryComboBox = new JComboBox<>(CATEGORIES);
-        JComboBox<String> currencyComboBox = new JComboBox<>(CURRENCIES);
+        JComboBox<String> categoryComboBox = new JComboBox<>(controller.CATEGORIES);
+        JComboBox<String> currencyComboBox = new JComboBox<>(controller.CURRENCIES);
 
         while (!validExpenseAdded) {
             JPanel panel = new JPanel(new GridLayout(0, 2));
@@ -313,126 +254,14 @@ public class ExpenseManagerGUI extends JFrame {
             int result = JOptionPane.showConfirmDialog(null, panel, "Add New Expense", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (result == JOptionPane.OK_OPTION) {
                 String date = dateField.getText().isEmpty() ? "06/06/2003" : dateField.getText(); // Default to current date if empty
-                validExpenseAdded = addExpense(nameField.getText(), date, (String) categoryComboBox.getSelectedItem(), amountField.getText(), (String) currencyComboBox.getSelectedItem());
+                validExpenseAdded = controller.addExpense(nameField.getText(), date, (String) categoryComboBox.getSelectedItem(), amountField.getText(), (String) currencyComboBox.getSelectedItem());
             } else {
                 break; // Exit the loop if the user cancels the dialog
             }
         }
     }
 
-    private boolean addExpense(String name, String date, String category, String amount, String currency) {
-        try {
-            double amountValue = Double.parseDouble(amount);
-            Expense newExpense = new Expense(name, date, category, amountValue, currency);
-            // Add the expense to ExpenseManager.
-            expenseManager.addExpense(newExpense);
-            updateMonthComboBox();
-            // Update the JTable.
-            tableModel.addRow(new Object[]{name, date, category, amountValue, currency});
-            if (totalsPanelVisible) updateTotalExpensesByCategoryDisplay();
-            return true;
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid amount format", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-            return false;
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Input", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-    }
-
-    private void removeSelectedExpense() {
-        int selectedRow = expensesTable.getSelectedRow();
-        if (selectedRow != -1) {
-            int response = JOptionPane.showConfirmDialog(this, // Confirmation message.
-                    "Are you sure you want to delete the selected expense?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
-
-            if (response == JOptionPane.YES_OPTION) {
-                int modelIndex = expensesTable.convertRowIndexToModel(selectedRow);
-                Expense expenseToRemove = expenseManager.getAllExpenses().get(modelIndex);
-                if (expenseManager.removeExpense(expenseToRemove)) {
-                    tableModel.removeRow(modelIndex);
-                    updateMonthComboBox();
-                    if (totalsPanelVisible) updateTotalExpensesByCategoryDisplay();
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select an expense to remove.", "No Selection", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void editSelectedExpense() {
-        int selectedRow = expensesTable.getSelectedRow();
-        if (selectedRow != -1) {
-            // Determine if a month is selected and get the corresponding list of expenses
-            YearMonth selectedMonth = (YearMonth) monthComboBox.getSelectedItem();
-            List<Expense> relevantExpenses = selectedMonth == null ? expenseManager.getAllExpenses() : expenseManager.getExpensesGroupedByMonth().get(selectedMonth);
-
-            if (relevantExpenses != null && !relevantExpenses.isEmpty()) {
-                int modelIndex = expensesTable.convertRowIndexToModel(selectedRow);
-                if (modelIndex < relevantExpenses.size()) {
-                    Expense oldExpense = relevantExpenses.get(modelIndex);
-                    Expense newExpense = getUpdatedExpenseFromUser(oldExpense); // This method gets the updated expense from the user
-
-                    if (newExpense != null) {
-                        expenseManager.editExpense(oldExpense, newExpense);
-                        updateTableRow(newExpense, modelIndex);
-                        updateMonthComboBox();
-                        if (totalsPanelVisible) updateTotalExpensesByCategoryDisplay();
-                    }
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select an expense to edit.", "No Selection", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private Expense getUpdatedExpenseFromUser(Expense existingExpense) {
-        // Creating text fields pre-populated with the existing expense's data, to make it more user-friendly.
-        JTextField nameField = new JTextField(existingExpense.getName());
-        JTextField dateField = new JTextField(existingExpense.getDate());
-        JTextField amountField = new JTextField(String.valueOf(existingExpense.getAmount()));
-        JComboBox<String> categoryComboBox = new JComboBox<>(CATEGORIES);
-        JComboBox<String> currencyComboBox = new JComboBox<>(CURRENCIES);
-        currencyComboBox.setSelectedItem(existingExpense.getCurrency());
-        categoryComboBox.setSelectedItem(existingExpense.getCategory());
-
-        // Create a panel to hold these components, similar to the addExpenseDialog
-        JPanel panel = new JPanel(new GridLayout(0, 2));
-        panel.add(new JLabel("Name:"));
-        panel.add(nameField);
-        panel.add(new JLabel("Date:"));
-        panel.add(dateField);
-        panel.add(new JLabel("Category:"));
-        panel.add(categoryComboBox);
-        panel.add(new JLabel("Amount:"));
-        panel.add(amountField);
-        panel.add(new JLabel("Convert Currency"));
-        panel.add(currencyComboBox);
-        // Display the dialog and get the user's input.
-        int result = JOptionPane.showConfirmDialog(null, panel, "Edit Expense, check the data first!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        if (result == JOptionPane.OK_OPTION) {
-            try {
-                // Parse the amount as a double and return a new Expense object with the updated data.
-                double amountValue = Double.parseDouble(amountField.getText());
-                Expense updatedExpense = new Expense(nameField.getText(), dateField.getText(), (String) categoryComboBox.getSelectedItem(), amountValue, existingExpense.getCurrency());
-                String chosenCurrency = (String) currencyComboBox.getSelectedItem();
-                updatedExpense.convertExpenseCurrency(chosenCurrency);
-                return updatedExpense;
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Invalid amount format", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                return null; // Indicate to the caller that the update was not successful.
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            return null;
-        }
-    }
-
-    private void updateTableRow(Expense expense, int rowIndex) {
+    public void updateTableRow(Expense expense, int rowIndex) {
         tableModel.setValueAt(expense.getName(), rowIndex, 0);
         tableModel.setValueAt(expense.getDate(), rowIndex, 1);
         tableModel.setValueAt(expense.getCategory(), rowIndex, 2);
@@ -442,7 +271,7 @@ public class ExpenseManagerGUI extends JFrame {
 
     private void initializeMonthComboBox() {
         monthComboBox = new JComboBox<>();
-        TreeMap<YearMonth, List<Expense>> groupedByMonth = expenseManager.getExpensesGroupedByMonth();
+        TreeMap<YearMonth, List<Expense>> groupedByMonth = controller.getExpensesGroupedByMonth();
         // Using a Vector for a "Show All" option at the beginning of the list.
         Vector<YearMonth> comboBoxModelData = new Vector<>(groupedByMonth.keySet());
         comboBoxModelData.insertElementAt(null, 0);
@@ -476,7 +305,7 @@ public class ExpenseManagerGUI extends JFrame {
     }
 
     private void updateTableForAllExpenses() {
-        List<Expense> allExpenses = expenseManager.getAllExpenses();
+        List<Expense> allExpenses = controller.getAllExpenses();
         tableModel.setRowCount(0); // Clear the table first.
         for (Expense expense : allExpenses) {
             tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount(), expense.getCurrency()});
@@ -484,7 +313,7 @@ public class ExpenseManagerGUI extends JFrame {
     }
 
     private void updateTableForSelectedMonth(YearMonth yearMonth) {
-        List<Expense> expensesForMonth = expenseManager.getExpensesGroupedByMonth().get(yearMonth);
+        List<Expense> expensesForMonth = controller.getExpensesGroupedByMonth().get(yearMonth);
         tableModel.setRowCount(0); // Clear the table first.
         for (Expense expense : expensesForMonth) {
             tableModel.addRow(new Object[]{expense.getName(), expense.getDate(), expense.getCategory(), expense.getAmount(), expense.getCurrency()});
@@ -492,19 +321,15 @@ public class ExpenseManagerGUI extends JFrame {
         }
     }
 
-    private void updateMonthComboBox() {
-        TreeMap<YearMonth, List<Expense>> groupedByMonth = expenseManager.getExpensesGroupedByMonth();
+    public void updateMonthComboBox() {
+        TreeMap<YearMonth, List<Expense>> groupedByMonth = controller.getExpensesGroupedByMonth();
         DefaultComboBoxModel<YearMonth> model = new DefaultComboBoxModel<>();
-
         model.addElement(null);  // Represents the "Show All" option.
-
         // Adding the rest of the months.
         for (YearMonth yearMonth : groupedByMonth.keySet()) {
             model.addElement(yearMonth);
         }
-
         monthComboBox.setModel(model);
-
         monthComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -527,7 +352,7 @@ public class ExpenseManagerGUI extends JFrame {
         Map<String, Double> totals = new LinkedHashMap<>();
 
         // Initialize all categories with zero totals.
-        for (String category : CATEGORIES) {
+        for (String category : controller.CATEGORIES) {
             totals.put(category, 0.0);
         }
 
@@ -540,7 +365,7 @@ public class ExpenseManagerGUI extends JFrame {
 
         // Add labels for each category total in the predefined order of CATEGORIES.
         double overallSpending = 0;
-        for (String category : CATEGORIES) {
+        for (String category : controller.CATEGORIES) {
             Double totalAmount = totals.get(category);
             overallSpending += totalAmount;
             JLabel totalLabel = new JLabel(category + ": " + String.format("%.2f", totalAmount));
@@ -557,6 +382,4 @@ public class ExpenseManagerGUI extends JFrame {
         totalsPanel.revalidate();
         totalsPanel.repaint();
     }
-
-
 }
