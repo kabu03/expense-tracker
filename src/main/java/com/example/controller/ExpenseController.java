@@ -62,7 +62,7 @@ public class ExpenseController {
 
     public void convertExpenseCurrency(Expense expense, String targetCurrency) {
         try {
-            expenseManager.service.convertExpenseCurrency(expense, targetCurrency);
+            this.expenseManager.getService().convertExpenseCurrency(expense, targetCurrency);
         } catch (IOException e) {
             // Handle the exception appropriately
             System.out.println("The currency could not be converted. There could be an issue linking with the external API.");
@@ -119,7 +119,7 @@ public class ExpenseController {
 
             if (response == JOptionPane.YES_OPTION) {
                 int modelIndex = gui.expensesTable.convertRowIndexToModel(selectedRow);
-                if (expenseManager.removeExpense(modelIndex))  {
+                if (expenseManager.removeExpense(modelIndex)) {
                     gui.tableModel.removeRow(modelIndex);
                     gui.updateMonthComboBox();
                     if (gui.totalsPanelVisible) gui.updateTotalExpensesByCategoryDisplay();
@@ -156,6 +156,7 @@ public class ExpenseController {
             JOptionPane.showMessageDialog(gui, "Please select an expense to edit.", "No Selection", JOptionPane.WARNING_MESSAGE);
         }
     }
+
     public Expense getUpdatedExpenseFromUser(Expense existingExpense) {
         // Creating text fields pre-populated with the existing expense's data, to make it more user-friendly.
         JTextField nameField = new JTextField(existingExpense.getName());

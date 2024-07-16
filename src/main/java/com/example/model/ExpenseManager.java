@@ -25,10 +25,12 @@ public class ExpenseManager {
         this.fileHandler = fileHandler;
     } // Storing all expenses in a linked list.
 
-    public void addExpense(Expense expense) {
+    public boolean addExpense(Expense expense) {
         if (expense != null) {
             expenses.add(expense);
+            return true;
         }
+        return false;
     }
 
     public boolean removeExpense(int index) {
@@ -41,15 +43,20 @@ public class ExpenseManager {
         return true;
     }
 
-    public void editExpense(Expense oldExpense, Expense newExpense) {
+    public ExpenseService getService() {
+        return service;
+    }
+
+    public boolean editExpense(Expense oldExpense, Expense newExpense) {
         if (oldExpense == null || newExpense == null) {
-            return;
+            return false;
         }
 
         int index = expenses.indexOf(oldExpense);
         if (index != -1) {
             expenses.set(index, newExpense);
-        }
+            return true;
+        } else return false;
     }
 
     public List<Expense> getAllExpenses() {

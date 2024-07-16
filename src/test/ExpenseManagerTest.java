@@ -1,5 +1,3 @@
-package test;
-
 import com.example.model.Expense;
 import com.example.model.ExpenseManager;
 import com.example.service.ExpenseService;

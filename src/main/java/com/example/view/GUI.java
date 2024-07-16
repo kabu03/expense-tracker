@@ -184,6 +184,7 @@ public class GUI extends JFrame {
             JOptionPane.showMessageDialog(null, "Error loading expenses: " + e.getMessage(), "Load Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void saveExpenses() {
         try {
             controller.saveExpenses();
@@ -192,6 +193,7 @@ public class GUI extends JFrame {
             JOptionPane.showMessageDialog(null, "Error saving expenses: " + e.getMessage(), "Save Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void setupTable() {
         String[] columnNames = {"Description", "Date", "Category", "Amount", "Currency"};
         tableModel = new DefaultTableModel(columnNames, 0) {
