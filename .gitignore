@@ -36,3 +36,7 @@ launch4jconfigfile.xml
 ExpenseTrackerGUI.png
 Expense Tracker Documentation.docx
 
+# Build/output directories
+/target/
+/META-INF/
+
